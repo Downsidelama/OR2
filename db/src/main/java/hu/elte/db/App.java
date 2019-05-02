@@ -1,4 +1,4 @@
-package hu.elte.database;
+package hu.elte.db;
 
 /**
  * Hello world!

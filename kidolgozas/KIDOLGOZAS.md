@@ -219,7 +219,7 @@ A rendszer elemeit szervezzük logikai szerepük szerint különböző komponens
 
 A komponensek közötti kommunikáció történhet közvetlen kapcsolat nélkül („anonim"), illetve egyidejűség nélkül („aszinkron").
 
-![](aszinkron.png)
+![](aszinkron.PNG)
 
 (a) Publish/subscribe modell (térben független)
 
@@ -586,7 +586,7 @@ a hatékonyság jelentos rontása nélkül.
 
 ## Szerver: háromrétegű clusterek
 
-![](haromretegu.png)
+![](haromretegu.PNG)
 
 ## A kérések kezelése
 
@@ -709,7 +709,7 @@ környezetben.
 
 ## Az ISO/OSI hálózatkezelési modell
 
-![](osi.png)
+![](osi.PNG)
 
 ### Hátrányok
 
@@ -822,7 +822,7 @@ Megtartó, aszinkron kommunikációs architektúra.
 
 ## RPC: Hivas lepesei
 
-![](rpc.png)
+![](rpc.PNG)
 
 ## RPC: paraméterátadás
 

@@ -1122,3 +1122,291 @@ A halotti bizonyítványt nem akarjuk örökké tárolni. Mikor törölhetoek?
     mindenhová elér.
 
 # Elnevezési rendszerek
+
+Az elosztott rendszerek entitásai a kapcsolódási pontjaikon (access
+point) keresztül érhetoek el. Ezeket távolról a ˝ címük azonosítja, amely
+megnevezi az adott pontot.
+Célszer ˝u lehet az entitást a kapcsolódási pontjaitól függetlenül is
+elnevezni. Az ilyen nevek helyfüggetlenek (location independent).
+Az egyszer ˝u neveknek nincsen szerkezete, tartalmuk véletlen szöveg.
+Az egyszer ˝u nevek csak összehasonlításra használhatóak.
+### Azonosító
+Egy név azonosító, ha egy-egy kapcsolatban áll a megnevezett
+egyeddel, és ez a hozzárendelés maradandó, azaz a név nem
+hivatkozhat más egyedre késobb sem. 
+
+
+## Strukturálatlan nevek
+### Strukturálatlan nevek feloldása
+Milyen lehetoségek vannak strukturálatlan nevek feloldására? (Azaz: ˝
+hogyan találjuk meg a hozzárendelt kapcsolódási pontot?)
+- egyszer ˝u megoldások (broadcasting)
+- otthonalapú megoldások
+- elosztott hasítótáblák (strukturált P2P)
+- hierarchikus rendszerek
+
+
+## Névfeloldás: egyszer ˝u megoldások
+### Broadcasting
+Kihirdetjük az azonosítót a hálózaton; az egyed visszaküldi a jelenlegi címét.
+- Lokális hálózatokon túl nem skálázódik
+- A hálózaton minden gépnek figyelnie kell a beérkezo kérésre ˝
+### Továbbítómutató
+Amikor az egyed elköltözik, egy mutató marad utána az új helyére.
+- A kliens elol el van fedve, hogy a szoftver továbbítómutató-láncot old fel. ˝
+- A megtalált címet vissza lehet küldeni a klienshez, így a további
+feloldások gyorsabban mennek.
+- Földrajzi skálázási problémák
+  - A hosszú láncok nem hibat ˝uroek ˝
+  - A feloldás hosszú idobe telik ˝
+  - Külön mechanizmus szükséges a láncok rövidítésére
+
+
+## Otthonalapú megközelítések
+### Egyréteg ˝u rendszer
+Az egyedhez tartozik egy otthon, ez tartja számon az egyed jelenlegi
+címét.
+- Az egyed otthoni címe (home address) be van jegyezve egy
+névszolgáltatásba
+- Az otthon számon tartja az egyed jelenlegi címét (foreign address)
+- A kliens az otthonhoz kapcsolódik, onnan kapja meg az aktuális
+címet
+### Kétréteg ˝u rendszer
+Az egyes (pl. földrajzi alapon meghatározott) környékeken
+feljegyezzük, hogy melyik egyedek tartózkodnak éppen arrafelé.
+- A névfeloldás eloször ezt a jegyzéket vizsgálja meg ˝
+- Ha az egyed nincsen a környéken, csak akkor kell az otthonhoz
+fordulni
+
+### Problémák
+- Legalább az egyed élettartamán át fenn kell tartani az otthont
+- Az otthon helye rögzített ⇒ költséges lehet, ha az egyed messze
+költözik
+- Rossz földrajzi skálázódás: az egyed sokkal közelebb lehet a
+klienshez az otthonnál
+
+
+## Eloszott hasítótábla
+### Chord eloszott hasítótábla
+Elosztott hasítótáblát (distributed hash table, DHT) készítünk
+(konkrétan Chord protokoll szerintit), ebben csúcsok tárolnak
+egyedeket. Az N csúcs gy ˝ur ˝u overlay szerkezetbe van szervezve.
+- Mindegyik csúcshoz véletlenszer ˝uen hozzárendelünk egy m bites
+azonosítót, és mindegyik entitáshoz egy m bites kulcsot. (Tehát
+N ≤ 2
+m.)
+- A k kulcsú egyed felelose az az ˝ id azonosítójú csúcs, amelyre
+k ≤ id, és nincsen köztük másik csúcs. A felelos csúcsot a kulcs ˝
+rákövetkezojének ˝ is szokás nevezni; jelölje succ(k).
+### Rosszul méretezod˝ o megoldás ˝
+A csúcsok eltárolhatnák a gy ˝ur ˝u következo csúcsának elérhet ˝ oségét, ˝
+és így lineárisan végigkereshetnénk a gy ˝ur ˝ut. Ez O(N) hatékonyságú,
+rosszul skálázódik, nem hibat ˝uro...
+
+
+## DHT: Finger table
+### Chord alapú adattárolás
+Mindegyik *p* csúcs egy FT<sub>p</sub> „finger table”-t tárol *m* bejegyzéssel:
+
+<p style="text-align: center;">FT<sub>p</sub>[i] = succ(p +2<sup>i−1</sup>)</p>
+
+Bináris (jelleg ˝u) keresést szeretnénk elérni, ezért minden lépés
+felezi a keresési tartományt: 2<sup>m−1</sup> 2<sup>m−2</sup>,...,2<sup>0</sup>.
+A *k* kulcsú egyed kikereséséhez (ha nem a jelenlegi csúcs
+tartalmazza) a kérést továbbítjuk a *j* index ˝u csúcshoz, amelyre
+
+<p style="text-align: center;">FT<sub>p</sub>[j] ≤ k < FT<sub>p</sub>[j +1]</p>
+
+illetve, ha *p* < *k* < FT<sub>p</sub>[1], akkor is FT<sub>p</sub>[1]-hez irányítjuk a kérést.
+
+### Jól méretezod˝ o megoldás ˝
+Ez a megoldás O(m), azaz O(log(N)) hatékonyságú.
+
+
+
+## A hálózati közelség kihasználása
+### Probléma
+Mivel overlay hálózatot használunk, az üzenetek sokat utazhatnak két csúcs
+között: a k és a succ(k +1) csúcs messze lehetnek egymástól.
+
+Azonosító topológia szerinti megválasztása: A csúcsok azonosítóját
+megpróbálhatjuk topológiailag közeli csúcsokhoz közelinek választani.
+Ez nehéz feladat lehet.
+
+Közelség szerinti útválasztás: A p csúcs FTp táblája m elemet tartalmaz. Ha
+ennél több információt is eltárolunk p-ben, akkor egy lépés megtételével
+közelebb juthatunk a célcsúcshoz.
+
+Szomszéd közelség szerinti megválasztása: Ha a Chordtól eltéro ábrázolást ˝
+követünk, a csúcs szomszédainak megválasztásánál azok közelségét is
+figyelembe lehet venni.
+
+## Hierarchikus módszerek
+### Hierarchical Location Services (HLS)
+A hálózatot osszuk fel tartományokra, és mindegyik tartományhoz
+tartozzon egy katalógus. Építsünk hierarchiát a katalógusokból.
+
+## HLS: Katalógus-csúcsok
+### A csúcsokban tárolt adatok
+- Az E egyed címe egy levélben található meg
+- A gyökértol az ˝ E leveléig vezeto úton minden bels ˝ o csúcsban van egy ˝
+mutató a lefelé következo csúcsra az úton ˝
+- Mivel a gyökér minden út kiindulópontja, minden egyedrol van ˝
+információja
+
+## HLS: Keresés a fában
+### Keresés a fában
+- A kliens valamelyik tartományba tartozik, innen indul a keresés
+- Felmegyünk a fában addig, amíg olyan csúcshoz nem érünk, amelyik tud
+E-rol, aztán követjük a mutatókat a levélig, ahol megvan ˝ E címe
+- Mivel a gyökér minden egyedet ismer, az algoritmus terminálása
+garantált
+
+## HLS: Beszúrás
+### Beszúrás a fában
+- Ugyanaddig megyünk felfelé a fában, mint keresésnél
+- Az érintett belso csúcsokba mutatókat helyezünk ˝
+- Egy csúcsban egy egyedhez több mutató is tartozhat
+
+
+
+## Névtér
+
+névtér: gyökeres, irányított, élcímkézett gráf, a levelek tartalmazzák a
+megnevezett egyedeket, a belso csúcsokat ˝ katalógusnak vagy könyvtárnak
+(directory) nevezzük
+Az egyedhez vezeto út címkéit összeolvasva kapjuk az egyed egy nevét. A ˝
+bejárt út, ha a gyökérbol indul, ˝ abszolút útvonalnév, ha máshonnan, relatív
+útvonalnév. Mivel egy egyedhez több út is vezethet, több neve is lehet.
+
+
+
+### Attribútumok
+A csúcsokban (akár a levelekben, akár a belso csúcsokban) különféle ˝
+attribútumokat is eltárolhatunk.
+- Az egyed típusát
+- Az egyed azonosítóját
+- Az egyed helyét/címét
+- Az egyed más neveit
+
+
+## Névfeloldás
+### Gyökér szükséges
+Kiinduló csúcsra van szükségünk ahhoz, hogy megkezdhessük a névfeloldást.
+### Gyökér megkeresése
+A név jellegétol függ ˝ o környezet biztosítja a gyökér elérhet ˝ oségét. Néhány ˝
+példa név esetén a hozzá tartozó környezet:
+- www.inf.elte.hu: egy DNS névszerver
+- /home/steen/mbox: a lokális NFS fájlszerver
+- 0031204447784: a telefonos hálózat
+- 157.181.161.79: a www.inf.elte.hu webszerverhez vezeto út
+
+
+## Csatolás (linking)
+### Soft link
+A gráf csúcsai valódi csatolások (hard link), ezek adják a névfeloldás
+alapját.
+soft link: a levelek más csúcsok álneveit is tartalmazhatják. Amikor a
+névfeloldás ilyen csúcshoz ér, az algoritmus az álnév feloldásával
+folytatódik.
+
+
+
+## A névtér implementációja
+### Nagyméret ˝u névtér tagolása
+Ha nagy (világméret ˝u) névterünk van, el kell osztanunk a gráfot a gépek
+között, hogy hatékonnyá tegyük a névfeloldást és a névtér kezelését.
+Ilyen nagy névteret alkot a DNS (Domain Name System).
+- Globális szint: Gyökér és felso csúcsok. A szervezetek közösen kezelik. ˝
+- Szervezeti szint: Egy-egy szervezet által kezelt csúcsok szintje.
+- Kezeloi szint: ˝ Egy adott szervezeten belül kezelt csúcsok.
+
+
+|Szempont              | Globális       | Szervezeti         | Kezeloi             |
+|---|---|---|---|
+|Földrajzi méret       | Világméretű    | Vállalati          | Vállalati alegység  |
+|Csúcsok száma         | Kevés          | Sok                | Rendkívül sok       |
+|Keresés ideje         | mp.            | ezredmp.           | Azonnal             |
+|Frissítés terjedése   | Ráéros         | Azonnal            | Azonnal             |
+|Másolatok száma       | Sok            | Nincs/kevés        | Nincs               |
+|Kliens gyorsítótáraz? | Igen           | Igen               | Néha                |
+
+
+
+## A névtér implementációja: DNS
+### A DNS egy csúcsában tárolt adatok
+Legtöbbször az A rekord tartalmát kérdezzük le; a névfeloldáshoz
+feltétlenül szükséges az NS rekord.
+Egy zóna a DNS-fa egy összefüggo, adminisztratív egységként kezelt ˝
+része, egy (ritkábban több) tartomány (domain) adatait tartalmazza.
+
+
+## Iteratív névfeloldás
+A névfeloldást a gyökér névszerverek egyikétol indítjuk. ˝
+Az iteratív névfeloldás során a névnek mindig csak egy komponensét
+oldjuk fel, a megszólított névszerver az ehhez tartozó névszerver címét
+küldi vissza.
+
+## Rekurzív névfeloldás
+A rekurzív névfeloldás során a névszerverek egymás közt
+kommunikálva oldják fel a nevet, a kliensoldali névfeloldóhoz rögtön a
+válasz érkezik.
+
+## Rekurzív névfeloldás: cache-elés
+
+![](rekurziv_nevfeloldas.PNG)
+
+## Névfeloldás: átméretezhetoség ˝
+### Méret szerinti átméretezhetoség ˝
+Sok kérést kell kezelni rövid ido alatt ˝ ⇒ a globális szint szerverei nagy
+terhelést kapnának.
+### Csúcsok adatai sok névszerveren
+A felso két szinten, és sokszor még az alsó szinten is ritkán változik a ˝
+gráf. Ezért megtehetjük, hogy a legtöbb csúcs adatairól sok
+névszerveren készítünk másolatot, így a keresést várhatóan sokkal
+közelebbrol indítjuk. ˝
+### A keresett adat: az entitás címe
+A legtöbbször a névfeloldással az entitás címét keressük.
+A névszerverek nem alkalmasak mozgó entitások címeinek
+kezelésére, mert azok költözésével gyakran változna a gráf.
+
+## Névfeloldás: átméretezhetoség ˝
+### Földrajzi átméretezhetoség ˝
+A névfeloldásnál a földrajzi távolságokat is figyelembe kell venni.
+
+### Helyfüggés
+Ha egy csúcsot egy adott névszerver szolgál ki, akkor földrajzilag oda kell
+kapcsolódnunk, ha el akarjuk érni a csúcsot.
+
+
+## Attribútumalapú nevek
+### Attribútumalapú keresés
+Az egyedeket sokszor kényelmes lehet a tulajdonságaik (attribútumaik)
+alapján keresni.
+### Teljes általánosságban: nem hatékony
+Ha bármilyen kombinációban megadhatunk attribútumértékeket, a
+kereséshez az összes egyedet érintenünk kell, ami nem hatékony.
+### X.500, LDAP
+A katalógusszolgáltatásokban (directory service) az attribútumokra
+megkötések érvényesek. A legismertebb ilyen szabvány az X.500,
+amelyet az LDAP protokollon keresztül szokás elérni.
+Az elnevezési rendszer fastruktúrájú, élei névalkotó jellemzokkel ˝
+(attribútum-érték párokkal) címzettek. Az egyedekre az útjuk jellemzoi ˝
+vonatkoznak, és további párokat is tartalmazhatnak.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

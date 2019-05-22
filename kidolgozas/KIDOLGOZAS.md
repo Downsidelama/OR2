@@ -1290,7 +1290,7 @@ Ha a műveletek szinkronizációja nem megfelelo, érvénytelen eredményt kapun
 
 ### Pontosan sorbarendezett csoportcímzés
 
-A P<sub>i</sub> folyamat minden műveletet idobélyeggel ellátott üzenetben küld el. Pi egyúttal beteszi a küldött üzenetet a saját queuei prioritásos sorába. A P<sub>j</sub> folyamat a beérkezo üzeneteket aző queuej sorába teszi be az idobélyegnek megfelelő prioritással. Az üzenet érkezéséről mindegyik folyamatot értesíti.P<sub>j</sub> akkor adja át a msgi üzenetet feldolgozásra, ha: (1) msg<sub>i</sub> a queue<sub>j</sub> elején található (azaz az o időbélyege a legkisebb) (2) a queue<sub>j</sub> sorban minden P<sub>k</sub> (k 6= i) folyamatnak megtalálható legalább egy üzenete, amelynek msgi -nél késobbi az időbélyege
+A P<sub>i</sub> folyamat minden műveletet idobélyeggel ellátott üzenetben küld el. P<sub>i</sub> egyúttal beteszi a küldött üzenetet a saját queue<sub>i</sub> prioritásos sorába. A P<sub>j</sub> folyamat a beérkezo üzeneteket az ő queue<sub>j</sub> sorába teszi be az idobélyegnek megfelelő prioritással. Az üzenet érkezéséről mindegyik folyamatot értesíti.P<sub>j</sub> akkor adja át a msgi üzenetet feldolgozásra, ha: (1) msg<sub>i</sub> a queue<sub>j</sub> elején található (azaz az o időbélyege a legkisebb) (2) a queue<sub>j</sub> sorban minden P<sub>k</sub> (k 6= i) folyamatnak megtalálható legalább egy üzenete, amelynek msgi -nél késobbi az időbélyege
 
 ### Feltételek
 

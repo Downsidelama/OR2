@@ -1270,39 +1270,7 @@ Ha a rendszerben van globális óra, azzal a fenti idobélyegek elkészíthetők
 
 ## Logikai órák: Lamport-féle idobélyegek
 
-Minden P
-
-<sub>i</sub>
-
- folyamat saját C
-
-<sub>i</sub>
-
- számlálót tart nyilván az alábbiak szerint: Pi minden eseménye eggyel növeli a számlálót. Az elküldött m üzenetre ráírjuk az idobélyeget: ts(m) = C
-
-<sub>i</sub>
-
- . Ha az _m_ üzenet beérkezik P
-
-<sub>j</sub>
-
- folyamathoz, ott a számláló új értéke C
-
-<sub>j</sub>
-
- = max{C
-
-<sub>j</sub>
-
- ,ts(m)}+1 lesz; így az ido „nem folyik visszafelé". P
-
-<sub>i</sub>
-
- és P
-
-<sub>j</sub>
-
- egybeeso időbélyegei közül tekintsük a Pi -belit elsonek, ha _i_ < _j_.
+Minden P<sub>i</sub> folyamat saját C<sub>i</sub> számlálót tart nyilván az alábbiak szerint: Pi minden eseménye eggyel növeli a számlálót. Az elküldött m üzenetre ráírjuk az idobélyeget: ts(m) = C<sub>i</sub>. Ha az _m_ üzenet beérkezik P<sub>j</sub> folyamathoz, ott a számláló új értéke C<sub>j</sub> = max{C<sub>j</sub>,ts(m)}+1 lesz; így az ido „nem folyik visszafelé". P<sub>i</sub> és P<sub>j</sub> egybeeso időbélyegei közül tekintsük a Pi -belit elsonek, ha _i_ < _j_.
 
 ### Beállítás: köztesréteg
 
@@ -1312,15 +1280,7 @@ Az órák állítását és az üzenetek idobélyegeit a köztesréteg kezeli.
 
 ### Pontosan sorbarendezett csoportcímzés
 
-Ha replikált adatbázison konkurens műveleteket kell végezni, sokszor követelmény, hogy mindegyik másolaton ugyanolyan sorrendben hajtódjanak végre a műveletek. Az alábbi példában két másolatunk van, a számlán kezdetben $1000 van. P
-
-<sub>1</sub>
-
- befizet $100-t, P
-
-<sub>2</sub>
-
- 1% kamatot helyez el.
+Ha replikált adatbázison konkurens műveleteket kell végezni, sokszor követelmény, hogy mindegyik másolaton ugyanolyan sorrendben hajtódjanak végre a műveletek. Az alábbi példában két másolatunk van, a számlán kezdetben $1000 van. P<sub>1</sub> befizet $100-t, P<sub>2</sub> 1% kamatot helyez el.
 
 ### Probléma
 
@@ -1330,37 +1290,7 @@ Ha a műveletek szinkronizációja nem megfelelo, érvénytelen eredményt kapun
 
 ### Pontosan sorbarendezett csoportcímzés
 
-A P
-
-<sub>i</sub>
-
- folyamat minden műveletet idobélyeggel ellátott üzenetben küld el. Pi egyúttal beteszi a küldött üzenetet a saját queuei prioritásos sorába. A P
-
-<sub>j</sub>
-
- folyamat a beérkezo üzeneteket aző queuej sorába teszi be az idobélyegnek megfelelő prioritással. Az üzenet érkezéséről mindegyik folyamatot értesíti.
-
-P
-
-<sub>j</sub>
-
- akkor adja át a msgi üzenetet feldolgozásra, ha: (1) msg
-
-<sub>i</sub>
-
- a queue
-
-<sub>j</sub>
-
- elején található (azaz az o időbélyege a legkisebb) (2) a queue
-
-<sub>j</sub>
-
- sorban minden P
-
-<sub>k</sub>
-
- (k 6= i) folyamatnak megtalálható legalább egy üzenete, amelynek msgi -nél késobbi az időbélyege
+A P<sub>i</sub> folyamat minden műveletet idobélyeggel ellátott üzenetben küld el. Pi egyúttal beteszi a küldött üzenetet a saját queuei prioritásos sorába. A P<sub>j</sub> folyamat a beérkezo üzeneteket aző queuej sorába teszi be az idobélyegnek megfelelő prioritással. Az üzenet érkezéséről mindegyik folyamatot értesíti.P<sub>j</sub> akkor adja át a msgi üzenetet feldolgozásra, ha: (1) msg<sub>i</sub> a queue<sub>j</sub> elején található (azaz az o időbélyege a legkisebb) (2) a queue<sub>j</sub> sorban minden P<sub>k</sub> (k 6= i) folyamatnak megtalálható legalább egy üzenete, amelynek msgi -nél késobbi az időbélyege
 
 ### Feltételek
 
@@ -1378,81 +1308,15 @@ a esemény: m1 beérkezett T = 16 idobélyeggel; b esemény: m2 elindult T = 20 
 
 ## Idobélyeg-vektor
 
-A P
+A P<sub>i</sub> most már az összes másik folyamat idejét is számon tartja egy VCi [1..n] tömbben, ahol VC<sub>i</sub> [j] azoknak a P<sub>j</sub> folyamatban bekövetkezett eseményeknek a száma, amelyekrol P<sub>i</sub> tud. 
 
-<sub>i</sub>
-
- most már az összes másik folyamat idejét is számon tartja egy VCi [1..n] tömbben, ahol VC
-
-<sub>i</sub>
-
- [j] azoknak a P
-
-<sub>j</sub>
-
- folyamatban bekövetkezett eseményeknek a száma, amelyekrol P
-
-<sub>i</sub>
-
- tud. Az m üzenet elküldése során P
-
-<sub>i</sub>
-
- megnöveli eggyel VC
-
-<sub>i</sub>
-
- [i] értékét (vagyis az üzenetküldés egy eseménynek számít), és a teljes V
-
-<sub>i</sub>
-
- idobélyeg-vektort ráírja az üzenetre. Amikor az m üzenet megérkezik a P
-
-<sub>j</sub>
-
- folyamathoz, amelyre a ts(m) idobélyeg van írva, két dolog történik: (1) VC
-
-<sub>j</sub>
-
- [k] := max{VC
-
-<sub>j</sub>
-
- [k],ts(m)[k]} (2) VC
-
-<sub>j</sub>
-
- [j] megno eggyel, vagyis az üzenet fogadása is egy eseménynek számít
+Az m üzenet elküldése során P<sub>i</sub> megnöveli eggyel VC<sub>i</sub> [i] értékét (vagyis az üzenetküldés egy eseménynek számít), és a teljes V<sub>i</sub> idobélyeg-vektort ráírja az üzenetre. Amikor az m üzenet megérkezik a P<sub>j</sub> folyamathoz, amelyre a ts(m) idobélyeg van írva, két dolog történik: (1) VC<sub>j</sub> [k] := max{VC<sub>j</sub> [k],ts(m)[k]} (2) VC<sub>j</sub> [j] megno eggyel, vagyis az üzenet fogadása is egy eseménynek számít
 
 ## Pontosan sorbarendezett csoportcímzés
 
 ### Idobélyeg-vektor alkalmazása
 
-Az idobélyeg-vektorokkal megvalósítható a pontosan sorbarendezett csoportcímzés: csak akkor kézbesítjük az üzeneteket, ha már mindegyik elozményüket kézbesítettük. Ehhez annyit változtatunk az elobb leírt időbélyeg-vektorok működésén, hogy amikor P
-
-<sub>j</sub>
-
- fogad egy üzenetet, akkor nem növeljük meg VC
-
-<sub>j</sub>
-
- [j] értékét. Pj csak akkor kézbesíti az m üzenetet, amikor: ts(m)[i] = VC
-
-<sub>j</sub>
-
- [i] +1, azaz a P
-
-<sub>j</sub>
-
- folyamatban P
-
-<sub>i</sub>
-
- minden korábbi üzenetét kézbesítettük ts(m)[k] ≤ VC
-
-<sub>j</sub>
-
- [k] for k 6= i, azaz az üzenet „nem a jövoből jött"
+Az idobélyeg-vektorokkal megvalósítható a pontosan sorbarendezett csoportcímzés: csak akkor kézbesítjük az üzeneteket, ha már mindegyik elozményüket kézbesítettük. Ehhez annyit változtatunk az elobb leírt időbélyeg-vektorok működésén, hogy amikor P<sub>j</sub> fogad egy üzenetet, akkor nem növeljük meg VC<sub>j</sub> [j] értékét. Pj csak akkor kézbesíti az m üzenetet, amikor: ts(m)[i] = VC<sub>j</sub> [i] +1, azaz a P<sub>j</sub> folyamatban P<sub>i</sub> minden korábbi üzenetét kézbesítettük ts(m)[k] ≤ VC<sub>j</sub> [k] for k 6= i, azaz az üzenet „nem a jövoből jött"
 
 ## Kölcsönös kizárás
 
@@ -1473,11 +1337,7 @@ Több folyamat egyszerre szeretne hozzáférni egy adott eroforráshoz. Ezt egys
 
 ## Kölcsönös kizárás: decentralizált
 
-Tegyük fel, hogy az eroforrás n-szeresen többszörözött, és minden replikátumhoz tartozik egy azt kezelo koordinátor. Az eroforráshoz való hozzáférésről többségi szavazás dönt: legalább m koordinátor engedélye szükséges, ahol m > n/2. Feltesszük, hogy egy esetleges összeomlás után a koordinátor hamar felépül – azonban a kiadott engedélyeket elfelejti. Példa: hatékonyság Tegyük fel, hogy a koordinátorok rendelkezésre állásának valószínűsége 99.9% („három kilences"), 32-szeresen replikált az eroforrásunk, és a koordinátorok háromnegyedének engedélyére van szükségünk (m = 0.75n). Ekkor annak a valószínűsége, hogy túl sok koordinátor omlik össze, igen alacsony: kevesebb mint 10
-
-<sup>−40</sup>
-
- .
+Tegyük fel, hogy az eroforrás n-szeresen többszörözött, és minden replikátumhoz tartozik egy azt kezelo koordinátor. Az eroforráshoz való hozzáférésről többségi szavazás dönt: legalább m koordinátor engedélye szükséges, ahol m > n/2. Feltesszük, hogy egy esetleges összeomlás után a koordinátor hamar felépül – azonban a kiadott engedélyeket elfelejti. Példa: hatékonyság Tegyük fel, hogy a koordinátorok rendelkezésre állásának valószínűsége 99.9% („három kilences"), 32-szeresen replikált az eroforrásunk, és a koordinátorok háromnegyedének engedélyére van szükségünk (m = 0.75n). Ekkor annak a valószínűsége, hogy túl sok koordinátor omlik össze, igen alacsony: kevesebb mint 10<sup>−40</sup>.
 
 ## Kölcsönös kizárás: elosztott
 
@@ -1499,7 +1359,6 @@ Algoritmus     | Be+kilépési üzenetszám | Belépés elotti késleltetés | P
 -------------- | ---------------------- | -------------------------- | ------------------------------
 Központosított | 3                      | 2                          | Ha összeomlik a koordinátor
 Decentralizált | 2mk + m                | 2mk                        | Kiéheztetés, rossz hatékonyság
-
 Elosztott | 2 (n – 1) | 2 (n – 1) | Bármely folyamat összeomlása | | Zsetongyűrű | 1 .. ∞ | 0 .. n – 1 | A zseton elvész, a birtokló folyamat összeomlik |
 
 ## Csúcsok globális pozícionálása
@@ -1542,19 +1401,8 @@ Sok algoritmusnak szüksége van arra, hogy kijelöljön egy folyamatot, amely a
 A folyamatoknak sorszámot adunk. A legnagyobb sorszámú folyamatot szeretnénk vezetonek választani.
 
 - Bármelyik folyamat kezdeményezhet vezetoválasztást. Mindegyik folyamatnak (amelyrol nem ismert, hogy kisebb lenne a küldőnél a sorszáma) elküld egy választási üzenetet.
-- Ha P
+- Ha P  <sub>nagyobb</sub> üzenetet kap P <sub>kisebb</sub>-tol, visszaküld neki egy olyan üzenetet, amellyel kiveszi P<sub>kisebb</sub>-et a választásból.
 
-  <sub>nagyobb</sub>
-
-   üzenetet kap P
-
-  <sub>kisebb</sub>
-
-  -tol, visszaküld neki egy olyan üzenetet, amellyel kiveszi P
-
-  <sub>kisebb</sub>
-
-  -et a választásból.
 - Ha P megadott idon belül nem kap letiltó üzenetet,ő lesz a vezeto. Erről mindegyik másik folyamatot értesíti egy üzenettel.
 
 ## Vezetoválasztás gyűrűben
@@ -1580,11 +1428,7 @@ A superpeer-eket úgy szeretnénk megválasztani, hogy teljesüljön rájuk:
 
 ### Megvalósítás DHT használata esetén
 
-Az azonosítók terének egy részét fenntartjuk a superpeer-ek számára. Példa: ha m-bites azonosítókat használunk, és S superpeer-re van szükségünk, a k = log
-
-<sub>2</sub>
-
-S felső egész része felso bitet foglaljuk le a superpeer-ek számára. Így N csúcs esetén kb. 2k−mN darab superpeer lesz.
+Az azonosítók terének egy részét fenntartjuk a superpeer-ek számára. Példa: ha m-bites azonosítókat használunk, és S superpeer-re van szükségünk, a k = log<sub>2</sub>S felső egész része felso bitet foglaljuk le a superpeer-ek számára. Így N csúcs esetén kb. 2k−mN darab superpeer lesz.
 
 A p kulcshoz tartozó superpeer: a p AND 11···11 00···00 kulcs felelose az
 
@@ -2369,11 +2213,7 @@ A kliensek tárolhatják a fájlokat (vagy részeket belolük), és a szerver ki
 
 ## Rendelkezésre állás növelése P2P rendszerekben
 
-Sok P2P alapú, decentralizált fájlrendszer létezik. Ezekben probléma lehet, ha túl gyorsan változik a tagság (churn), mert kiléphet akár egy fájlt tartalmazó összes csúcs. Ennek kivédéséhez replikálhatjuk a fájljainkat (arányát jelölje rrep). Másik megközelítés: erasure coding: az F fájlt bontsuk m részre, és minden szerverre tegyünk n részt, ahol n > m. A replikációs arány ekkor r
-
-<sub>ec</sub>
-
- = n/m. Ez az arány általában sokkal kisebb, mint rrep, ha a rendszerünk változékony.
+Sok P2P alapú, decentralizált fájlrendszer létezik. Ezekben probléma lehet, ha túl gyorsan változik a tagság (churn), mert kiléphet akár egy fájlt tartalmazó összes csúcs. Ennek kivédéséhez replikálhatjuk a fájljainkat (arányát jelölje rrep). Másik megközelítés: erasure coding: az F fájlt bontsuk m részre, és minden szerverre tegyünk n részt, ahol n > m. A replikációs arány ekkor r<sub>ec</sub> = n/m. Ez az arány általában sokkal kisebb, mint rrep, ha a rendszerünk változékony.
 
 # Elosztott webalapú rendszerek
 

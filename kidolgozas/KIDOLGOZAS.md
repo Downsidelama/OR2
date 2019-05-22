@@ -1218,16 +1218,8 @@ Az idoegységeket (pl. másodperc) az atomidőből (TAI) származtatjuk.
 
 Ha a rendszerünkben van UTC-vevo, az megkapja a pontos időt. Ezt a következok figyelembe vételével terjeszthetjük el a rendszeren belül.
 
-- A p gép saját órája szerint az idő t UTC-idopillanatban C
-
-  <sub>p</sub>
-
-  (t).
-- Ideális esetben mindig pontos az ido: C
-
-  <sub>p</sub>
-
-  (t) = t, másképpen dC/dt = 1.
+- A p gép saját órája szerint az idő t UTC-idopillanatban C<sub>p</sub>(t).
+- Ideális esetben mindig pontos az ido: C<sub>p</sub>(t) = t, másképpen dC/dt = 1.
 
 ### Idoszinkronizáció üteme
 
@@ -1638,17 +1630,37 @@ Sokszor a feltételeket nem a számértékekre alapozzuk, hanem csupán az írá
 
 Soros konzisztencia esetén azt várjuk el, hogy a végrehajtás eredménye olyan legyen, mintha az összes folyamat összes művelete egy meghatározott sorrendben történt volna meg, megorizve bármely adott folyamat saját műveleteinek sorrendjét. (a) teljesíti, (b) nem
 
-(a): | P1: | W(x)a | | | | | | --- | --- | --- | --- | --- | --- | --- | | P2: | | W(x)b | | | | | P3: | | | R(x)b | | R(x)a | | P4: | | | | R(x)b | R(x)a |
+(a):
+| P1: | W(x)a | | | | | 
+| --- | --- | --- | --- | --- | --- | --- | 
+| P2: | | W(x)b | | | | 
+|P3: | | | R(x)b | | R(x)a | 
+| P4: | | | | R(x)b | R(x)a |
 
-(b): | P1: | W(x)a | | | | | | --- | --- | --- | --- | --- | --- | --- | | P2: | | W(x)b | | | | | P3: | | | R(x)b | | R(x)a | | P4: | | | | R(x)a | R(x)b |
+(b): 
+| P1: | W(x)a | | | | | 
+| --- | --- | --- | --- | --- | --- | --- | 
+|P2: | | W(x)b | | | | 
+|P3: | | | R(x)b | | R(x)a | 
+|P4: | | | | R(x)a | R(x)b |
 
 ## Okozati konzisztencia
 
 A potenciálisan okozatilag összefüggo műveleteket kell mindegyik folyamatnak azonos sorrendben látnia. A konkurens írásokat különbözo folyamatok különböző sorrendben láthatják. (b) teljesíti; (a) nem, mert ott P1 és P2 írásait „összeköti" az olvasás
 
-(a): | P1: | W(x)a | | | | | | --- | --- | --- | --- | --- | --- | --- | | P2: | | R(x)a | W(x)b | | | | P3: | | | | R(x)b | R(x)a | | P4: | | | | R(x)a | R(x)b |
+(a): 
+| P1: | W(x)a | | | | | 
+| --- | --- | --- | --- | --- | --- | --- | 
+| P2: | | R(x)a | W(x)b | | | 
+| P3: | | | | R(x)b | R(x)a | 
+| P4: | | | | R(x)a | R(x)b |
 
-(b): | P1: | W(x)a | | | | | | --- | --- | --- | --- | --- | --- | --- | | P2: | | | W(x)b | | | | P3: | | | | R(x)b | R(x)a | | P4: | | | | R(x)a | R(x)b |
+(b): 
+| P1: | W(x)a | | | | | 
+| --- | --- | --- | --- | --- | --- | --- | 
+| P2: | | | W(x)b | | | | 
+P3: | | | | R(x)b | R(x)a | | 
+P4: | | | | R(x)a | R(x)b |
 
 ## Műveletek csoportosítása
 
@@ -1765,27 +1777,9 @@ Fix lejárat helyett rugalmasabb, ha a rendszer állapotától függhet a haszon
 
 TW[i,j] = ∑ { weight(W) | origin(W) = Sj & W ∈ log(Si) }
 
-- Ekkor a változó összértéke (v) és értéke az i-edik másolaton (v
-
-  <sub>i</sub>
-
-   ):
-
-  - v = v
-
-    <sub>kezdeti</sub>
-
-     +∑ TW[k,k]
-
-  - v
-
-    <sub>i</sub>
-
-     = v
-
-    <sub>kezdeti</sub>
-
-     +∑ TW[i,k]
+- Ekkor a változó összértéke (v) és értéke az i-edik másolaton (v<sub>i</sub>):
+  - v = v<sub>kezdeti</sub>+∑ TW[k,k]
+  - v<sub>i</sub> = v<sub>kezdeti</sub>+∑ TW[i,k]
 
 ## Folyamatos konzisztencia: számszerű eltérések
 
@@ -1820,37 +1814,9 @@ Példa: kapcsolat nélküli munka, idonként szinkronizálás a rendszerrel anna
 
 Többszörözött írás: az írási műveletet több szerveren hajtjuk végre.
 
-Testület (quorum): egy művelet végrehajtása elott meghatározott számú szervertol kell engedélyt kérni. Jelölés: írási N
+Testület (quorum): egy művelet végrehajtása elott meghatározott számú szervertol kell engedélyt kérni. Jelölés: írási N<sub>W</sub>, olvasási N<sub>R</sub>.
 
-<sub>W</sub>
-
- , olvasási N
-
-<sub>R</sub>
-
-.
-
-Egy írási művelet ütközhetne egy olvasási művelettel, vagy egy másik írásival; az elso elkerüléséhez N
-
-<sub>R</sub>
-
- +N
-
-<sub>W</sub>
-
- > N, a másodikhoz N
-
-<sub>W</sub>
-
- +N
-
-<sub>W</sub>
-
- > N, azaz N
-
-<sub>W</sub>
-
- > N/2 szükséges a skatulya-elv alapján
+Egy írási művelet ütközhetne egy olvasási művelettel, vagy egy másik írásival; az elso elkerüléséhez N<sub>R</sub>+N<sub>W</sub> > N, a másodikhoz N<sub>W</sub>+N<sub>W</sub> > N, azaz N<sub>W</sub> > N/2 szükséges a skatulya-elv alapján
 
 ## Hibatűrés
 

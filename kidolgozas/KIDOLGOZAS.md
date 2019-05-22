@@ -1354,6 +1354,8 @@ válasz érkezik.
 
 ## Rekurzív névfeloldás: cache-elés
 
+*TODO: Konvertalni tablazatba*
+
 ![](rekurziv_nevfeloldas.PNG)
 
 ## Névfeloldás: átméretezhetoség ˝
@@ -1394,14 +1396,342 @@ Az elnevezési rendszer fastruktúrájú, élei névalkotó jellemzokkel ˝
 (attribútum-érték párokkal) címzettek. Az egyedekre az útjuk jellemzoi ˝
 vonatkoznak, és további párokat is tartalmazhatnak.
 
+# Szinkronizáció
+
+## Fizikai órák
+### Milyen módon van szükségünk az idore? ˝
+Néha a pontos idot szeretnénk tudni, néha elég, ha megállapítható két ˝
+idopont közül, melyik volt korábban. Foglalkozzunk el ˝ oször az els ˝ o kérdéssel. ˝
+### Egyezményes koordinált világido˝
+Az idoegységeket (pl. másodperc) az atomid ˝ ob˝ ol (TAI) származtatjuk. ˝
+- Az atomido definíciója a gerjesztett céziumatom által kibocsátott ˝
+sugárzás frekvenciáján alapul.
+- A Föld forgásának sebessége kissé változékony, ezért a világido (UTC) ˝
+néhány (szöko)másodperccel eltér az atomid ˝ ot˝ ol. ˝
+- Az atomido˝ kb. 420 atomóra átlagából adódik.
+Az atomórák pontosságának nagyságrendje kb. 1ns/nap.
+- Az atomidot m ˝uholdak sugározzák, a vétel pontossága 0 ˝ .5 ms
+nagyságrend ˝u, pl. az idojárás befolyásolhatja.
+
+
+### Fizikai ido elterjesztése ˝
+Ha a rendszerünkben van UTC-vevo, az megkapja a pontos id ˝ ot. Ezt a ˝
+következok figyelembe vételével terjeszthetjük el a rendszeren belül. ˝
+- A p gép saját órája szerint az ido˝ t UTC-idopillanatban ˝ C<sub>p</sub>(t).
+- Ideális esetben mindig pontos az ido:˝ C<sub>p</sub>(t) = t, másképpen dC/dt = 1.
+
+
+### Idoszinkronizáció üteme ˝
+A valóságban p vagy túl gyors, vagy túl
+lassú, de viszonylag pontos:
+
+1 − ρ ≤(dC) / (dt) ≤ 1 + ρ
+Ha csak megadott δ eltérést akarunk
+megengedni, δ/(2ρ) másodpercenként
+szinkronizálnunk kell az idot. 
+
+## Óraszinkronizálás
+### Cristian-algoritmus
+Mindegyik gép egy központi idoszervert ˝ ol ˝ kéri le a pontos idot˝
+legfeljebb δ/(2ρ) másodpercenként (Network Time Protocol).
+- Nem a megkapott idore kell állítani az órát: bele kell számítani, ˝
+hogy a szerver kezelte a kérést és a válasznak vissza kellett
+érkeznie a hálózaton keresztül.
+
+
+### Berkeley-algoritmus
+Itt nem feltétlenül a pontos ido beállítása a cél, csak az, hogy minden ˝
+gép ideje azonos legyen.
+Az idoszerver néha bekéri mindegyik gép idejét, ebb ˝ ol átlagot von, ˝
+majd mindenkit értesít, hogy a saját óráját mennyivel kell átállítania.
+- Az ido egyik gépnél sem folyhat visszafelé: ha vissza kellene ˝
+állítani valamelyik órát, akkor ehelyett a számontartott ido mérését ˝
+lelassítja a gép mindaddig, amíg a kívánt ido be nem áll.
+
+## Az elobb-történt reláció ˝
+
+### Az elobb-történt (happened-before) reláció ˝
+Az elobb-történt reláció ˝ az alábbi tulajdonságokkal rendelkezo reláció. ˝
+Annak a jelölése, hogy az a esemény elobb-történt-mint ˝ b-t: a → b.
+- Ha ugyanabban a folyamatban az a esemény korábban
+következett be b eseménynél, akkor a → b.
+- Ha a esemény egy üzenet küldése, és b esemény annak
+fogadása, akkor a → b.
+- A reláció tranzitív: ha a → b és b → c, akkor a → c
+
+### Parcialitás
+A fenti reláció parciális rendezés: elofordulhat, hogy két esemény közül ˝
+egyik sem elozi meg a másikat.
+
+## Logikai órák
+### Az ido és az el ˝ obb-történt reláció ˝
+Minden e eseményhez idobélyeget rendelünk, ami egy egész szám (jelölése: ˝
+C(e)), és megköveteljük az alábbi tulajdonságokat.
+- Ha a → b egy folyamat két eseményére, akkor C(a) < C(b).
+- Ha a esemény egy üzenet küldése és b esemény annak fogadása, akkor
+C(a) < C(b).
+
+
+### Globális óra nélkül?
+Ha a rendszerben van globális óra, azzal a fenti idobélyegek elkészíthet ˝ ok. ˝
+A továbbiakban azt vizsgáljuk, hogyan lehet az idobélyegeket globális óra ˝
+nélkül elkészíteni.
+
+
+## Logikai órák: Lamport-féle idobélyegek ˝
+Minden P<sub>i</sub>
+folyamat saját C<sub>i</sub> számlálót tart nyilván az alábbiak szerint:
+Pi minden eseménye eggyel növeli a számlálót.
+Az elküldött m üzenetre ráírjuk az idobélyeget: ˝ ts(m) = C<sub>i</sub>
+.
+Ha az *m* üzenet beérkezik P<sub>j</sub>
+folyamathoz, ott a számláló új értéke
+C<sub>j</sub> = max{C<sub>j</sub>
+,ts(m)}+1 lesz; így az ido „nem folyik visszafelé”. ˝
+P<sub>i</sub> és P<sub>j</sub> egybeeso id ˝ obélyegei közül tekintsük a ˝ Pi
+-belit elsonek, ha ˝ *i* < *j*.
+
+### Beállítás: köztesréteg
+Az órák állítását és az üzenetek idobélyegeit a köztesréteg kezeli.
+
+
+## Logikai órák: példa
+### Pontosan sorbarendezett csoportcímzés
+Ha replikált adatbázison konkurens m ˝uveleteket kell végezni, sokszor
+követelmény, hogy mindegyik másolaton ugyanolyan sorrendben hajtódjanak
+végre a m ˝uveletek.
+Az alábbi példában két másolatunk van, a számlán kezdetben $1000 van.
+P<sub>1</sub> befizet $100-t, P<sub>2</sub> 1% kamatot helyez el.
+
+
+### Probléma
+Ha a m ˝uveletek szinkronizációja nem megfelelo, érvénytelen eredményt ˝
+kapunk: másolat1 ← $1111, de másolat2 ← $1110.
+
+
+## Példa: Pontosan sorbarendezett csoportcímzés
+### Pontosan sorbarendezett csoportcímzés
+A P<sub>i</sub>
+folyamat minden m ˝uveletet idobélyeggel ellátott üzenetben küld el. ˝
+Pi egyúttal beteszi a küldött üzenetet a saját queuei prioritásos sorába.
+A P<sub>j</sub>
+folyamat a beérkezo üzeneteket az ˝ o˝ queuej sorába teszi be az
+idobélyegnek megfelel ˝ o prioritással. Az üzenet érkezésér ˝ ol mindegyik ˝
+folyamatot értesíti.
+
+
+P<sub>j</sub> akkor adja át a msgi üzenetet feldolgozásra, ha:
+(1) msg<sub>i</sub> a queue<sub>j</sub> elején található (azaz az o id ˝ obélyege a legkisebb) ˝
+(2) a queue<sub>j</sub> sorban minden P<sub>k</sub> (k 6= i) folyamatnak megtalálható legalább
+egy üzenete, amelynek msgi
+-nél késobbi az id ˝ obélyege ˝
+### Feltételek
+Feltételezzük, hogy a kommunikáció a folyamatok között megbízható és FIFO
+sorrend ˝u.
+
+
+## Idobélyeg-vektor ˝
+### Okság
+Arra is szükségünk lehet, hogy megállapíthassuk két eseményrol, hogy az ˝
+egyik okoz(hat)ta-e a másikat – illetve fordítva, függetlenek-e egymástól.
+Az eddigi megközelítésünk erre nem alkalmas: abból, hogy C(a) < C(b), nem
+vonható le az a következtetés, hogy az a esemény okságilag megelozi ˝ a b
+eseményt.
+
+### A példában szereplo adatok ˝
+a esemény: m1 beérkezett T = 16
+idobélyeggel; ˝
+b esemény: m2 elindult T = 20
+idobélyeggel. ˝
+Bár 16 < 20, a és b nem függenek
+össze okságilag.
+
+## Idobélyeg-vektor ˝
+A P<sub>i</sub> most már az összes másik folyamat idejét is számon tartja egy
+VCi
+[1..n] tömbben, ahol VC<sub>i</sub>
+[j] azoknak a P<sub>j</sub>
+folyamatban bekövetkezett
+eseményeknek a száma, amelyekrol ˝ P<sub>i</sub>
+tud.
+Az m üzenet elküldése során P<sub>i</sub> megnöveli eggyel VC<sub>i</sub>
+[i] értékét (vagyis
+az üzenetküldés egy eseménynek számít), és a teljes V<sub>i</sub>
+idobélyeg-vektort ráírja az üzenetre. ˝
+Amikor az m üzenet megérkezik a P<sub>j</sub>
+folyamathoz, amelyre a ts(m)
+idobélyeg van írva, két dolog történik: ˝
+(1) VC<sub>j</sub>
+[k] := max{VC<sub>j</sub>
+[k],ts(m)[k]}
+(2) VC<sub>j</sub>
+[j] megno eggyel, vagyis az üzenet fogadása is egy eseménynek ˝
+számít
+
+
+## Pontosan sorbarendezett csoportcímzés
+### Idobélyeg-vektor alkalmazása ˝
+Az idobélyeg-vektorokkal megvalósítható a pontosan sorbarendezett ˝
+csoportcímzés: csak akkor kézbesítjük az üzeneteket, ha már
+mindegyik elozményüket kézbesítettük. ˝
+Ehhez annyit változtatunk az elobb leírt id ˝ obélyeg-vektorok ˝
+m ˝uködésén, hogy amikor P<sub>j</sub>
+fogad egy üzenetet, akkor nem növeljük
+meg VC<sub>j</sub>
+[j] értékét.
+Pj csak akkor kézbesíti az m üzenetet, amikor:
+ts(m)[i] = VC<sub>j</sub>
+[i] +1, azaz a P<sub>j</sub>
+folyamatban P<sub>i</sub> minden korábbi
+üzenetét kézbesítettük
+ts(m)[k] ≤ VC<sub>j</sub>
+[k] for k 6= i, azaz az üzenet „nem a jövob˝ ol jött”
+
+## Kölcsönös kizárás
+### Kölcsönös kizárás: a feladat
+Több folyamat egyszerre szeretne hozzáférni egy adott eroforráshoz. ˝
+Ezt egyszerre csak egynek engedhetjük meg közülük, különben az
+eroforrás helytelen állapotba kerülhet. ˝
+### Megoldásfajták
+- Központi szerver használata.
+- Peer-to-peer rendszeren alapuló teljesen elosztott megoldás.
+- Teljesen elosztott megoldás általános gráfszerkezetre.
+- Teljesen elosztott megoldás (logikai) gy ˝ur ˝uben.
+
+
+## Kölcsönös kizárás: központosított
+
+![](kolcsonos.PNG)
+
+## Kölcsönös kizárás: decentralizált
+Tegyük fel, hogy az eroforrás ˝ n-szeresen többszörözött, és minden
+replikátumhoz tartozik egy azt kezelo koordinátor. ˝
+Az eroforráshoz való hozzáférésr ˝ ol ˝ többségi szavazás dönt: legalább
+m koordinátor engedélye szükséges, ahol m > n/2.
+Feltesszük, hogy egy esetleges összeomlás után a koordinátor hamar
+felépül – azonban a kiadott engedélyeket elfelejti.
+Példa: hatékonyság
+Tegyük fel, hogy a koordinátorok rendelkezésre állásának
+valószín ˝usége 99.9% („három kilences”), 32-szeresen replikált az
+eroforrásunk, és a koordinátorok háromnegyedének engedélyére van ˝
+szükségünk (m = 0.75n).
+Ekkor annak a valószín ˝usége, hogy túl sok koordinátor omlik össze,
+igen alacsony: kevesebb mint 10<sup>−40</sup>
+.
+
+
+## Kölcsönös kizárás: elosztott
+### M ˝uködési elv
+Ismét többszörözött az eroforrás, amikor a kliens hozzá szeretne férni, ˝
+kérést küld mindegyik koordinátornak (idobélyeggel). ˝
+Választ (hozzáférési engedélyt) akkor kap, ha
+- a koordinátor nem igényli az eroforást, vagy ˝
+- a koordinátor is igényli az eroforrást, de kisebb az id ˝ obélyege. ˝
+- Különben a koordinátor (átmenetileg) nem válaszol.
+
+
+## Kölcsönös kizárás: zsetongy ˝ur ˝u
+### Essence
+A folyamatokat logikai gy ˝ur ˝ube szervezzük (fizikailag lehetnek pl. egy
+lokális hálózaton).
+A gy ˝ur ˝uben egy zsetont küldünk körbe, amelyik folyamat birtokolja, az
+férhet hozzá az eroforráshoz.
+
+| Algoritmus | Be+kilépési üzenetszám | Belépés elotti késleltetés | Problémák |
+| --- | --- | --- | --- |
+| Központosított | 3 | 2 | Ha összeomlik a koordinátor |
+|Decentralizált | 2mk + m | 2mk | Kiéheztetés, rossz hatékonyság |
+Elosztott | 2 (n – 1) | 2 (n – 1) | Bármely folyamat összeomlása |
+| Zsetongy ˝ur ˝u | 1 .. ∞  | 0 .. n – 1 | A zseton elvész, a birtokló folyamat összeomlik |
+
+## Csúcsok globális pozícionálása
+### Feladat
+Meg szeretnénk becsülni a csúcsok közötti kommunikációs
+költségeket. Erre többek között azért van szükség, hogy hatékonyan
+tudjuk megválasztani, melyik gépekre helyezzünk replikátumokat az
+adatainkból.
+### Ábrázolás
+A csúcsokat egy többdimenziós geometriai térben ábrázoljuk, ahol a P
+és Q csúcsok közötti kommunikációs költséget a csúcsok távolsága
+jelöli. Így a feladatot visszavezettük távolságok becslésére.
+
+A tér dimenziószáma minél nagyobb, annál pontosabb lesz a
+becslésünk, de annál költségesebb is
+
+## A pozíció kiszámítása
+### A becsléshez szükséges csúcsok száma
+Egy pont pozíciója meghatározható a tér dimenziószámánál eggyel
+nagyobb számú másik pontból a tolük vett távolságok alapján.
+
+
+### Nehézségek
+- a késleltetések mért értékei
+ingadoznak
+- nem egyszer ˝uen összeadódnak a
+távolságok −→
+
+### Megoldás
+Válasszunk L darab csúcsot, amelyek pozícióját tegyük fel, hogy nagyon
+pontosan meghatároztuk.
+
+Egy P csúcsot ezekhez viszonyítva helyezünk el: megmérjük az összestol ˝
+mért késleltetését, majd úgy választjuk meg P pozícióját, hogy az össz-hiba
+(a mért késleltetések és a megválasztott pozícióból geometriailag adódó
+késleltetés eltérése) a legkisebb legyen.
+
+
+## Vezetoválasztás: zsarnok-algoritmus ˝
+### Vezetoválasztás: feladat ˝
+Sok algoritmusnak szüksége van arra, hogy kijelöljön egy folyamatot,
+amely aztán a további lépéseket koordinálja.
+Ezt a folyamatot dinamikusan szeretnénk kiválasztani.
+### Zsarnok-algoritmus
+A folyamatoknak sorszámot adunk. A legnagyobb sorszámú folyamatot
+szeretnénk vezetonek választani. ˝
+- Bármelyik folyamat kezdeményezhet vezetoválasztást. Mindegyik ˝
+folyamatnak (amelyrol nem ismert, hogy kisebb lenne a küld ˝ onél a ˝
+sorszáma) elküld egy választási üzenetet.
+- Ha P<sub>nagyobb</sub> üzenetet kap P<sub>kisebb</sub>-tol, visszaküld neki egy olyan ˝
+üzenetet, amellyel kiveszi P<sub>kisebb</sub>-et a választásból.
+- Ha P megadott idon belül nem kap letiltó üzenetet, ˝ o lesz a ˝
+vezeto. Err ˝ ol mindegyik másik folyamatot értesíti egy üzenettel.
 
 
 
+## Vezetoválasztás gy ˝ur ˝uben ˝
+
+Ismét logikai gy ˝ur ˝unk van, és a folyamatoknak vannak sorszámai. A
+legnagyobb sorszámú folyamatot szeretnénk vezetonek választani. ˝
+
+Bármelyik folyamat kezdeményezhet vezetoválasztást: elindít egy ˝
+üzenetet a gy ˝ur ˝un körbe, amelyre mindenki ráírja a sorszámát. Ha egy
+folyamat összeomlott, az kimarad az üzenetküldés menetébol. ˝
+
+Amikor az üzenet visszajut a kezdeményezohöz, minden aktív folyamat ˝
+sorszáma szerepel rajta. Ezek közül a legnagyobb lesz a vezeto; ezt ˝
+egy másik üzenet körbeküldése tudatja mindenkivel.
+
+Nem okozhat problémát, ha több folyamat is egyszerre kezdeményez
+választást, mert ugyanaz az eredmény adódik. Ha pedig az üzenetek
+valahol elvesznének (összeomlik az éppen oket tároló folyamat), akkor ˝
+újrakezdheto a választás.
+
+## Superpeer-választás
+### Szempontok
+A superpeer-eket úgy szeretnénk megválasztani, hogy teljesüljön rájuk:
+- A többi csúcs alacsony késleltetéssel éri el oket ˝
+- Egyenletesen vannak elosztva a hálózaton
+- A csúcsok megadott hányadát választjuk superpeer-nek
+- Egy superpeer korlátozott számú peer-t szolgál ki
 
 
+### Megvalósítás DHT használata esetén
+Az azonosítók terének egy részét fenntartjuk a superpeer-ek számára.
+Példa: ha m-bites azonosítókat használunk, és S superpeer-re van
+szükségünk, a k = log<sub>2</sub>S felső egész része felso bitet foglaljuk le a superpeer-ek számára. ˝
+Így N csúcs esetén kb. 2k−mN darab superpeer lesz.
 
-
-
+A p kulcshoz tartozó superpeer: a p AND 11···11 00···00 kulcs felelose az
 
 
 

@@ -1631,6 +1631,7 @@ Sokszor a feltételeket nem a számértékekre alapozzuk, hanem csupán az írá
 Soros konzisztencia esetén azt várjuk el, hogy a végrehajtás eredménye olyan legyen, mintha az összes folyamat összes művelete egy meghatározott sorrendben történt volna meg, megorizve bármely adott folyamat saját műveleteinek sorrendjét. (a) teljesíti, (b) nem
 
 (a):
+
 | P1: | W(x)a | | | | | 
 | --- | --- | --- | --- | --- | --- | --- | 
 | P2: | | W(x)b | | | | 
@@ -1638,6 +1639,7 @@ Soros konzisztencia esetén azt várjuk el, hogy a végrehajtás eredménye olya
 | P4: | | | | R(x)b | R(x)a |
 
 (b): 
+
 | P1: | W(x)a | | | | | 
 | --- | --- | --- | --- | --- | --- | --- | 
 |P2: | | W(x)b | | | | 

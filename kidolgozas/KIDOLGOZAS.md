@@ -1633,7 +1633,7 @@ Soros konzisztencia esetén azt várjuk el, hogy a végrehajtás eredménye olya
 (a):
 
 | P1: | W(x)a | | | | | 
-| --- | --- | --- | --- | --- | --- | --- | 
+| --- | --- | --- | --- | --- | --- |
 | P2: | | W(x)b | | | | 
 |P3: | | | R(x)b | | R(x)a | 
 | P4: | | | | R(x)b | R(x)a |
@@ -1641,7 +1641,7 @@ Soros konzisztencia esetén azt várjuk el, hogy a végrehajtás eredménye olya
 (b): 
 
 | P1: | W(x)a | | | | | 
-| --- | --- | --- | --- | --- | --- | --- | 
+| --- | --- | --- | --- | --- | --- |
 |P2: | | W(x)b | | | | 
 |P3: | | | R(x)b | | R(x)a | 
 |P4: | | | | R(x)a | R(x)b |
@@ -1651,15 +1651,17 @@ Soros konzisztencia esetén azt várjuk el, hogy a végrehajtás eredménye olya
 A potenciálisan okozatilag összefüggo műveleteket kell mindegyik folyamatnak azonos sorrendben látnia. A konkurens írásokat különbözo folyamatok különböző sorrendben láthatják. (b) teljesíti; (a) nem, mert ott P1 és P2 írásait „összeköti" az olvasás
 
 (a): 
+
 | P1: | W(x)a | | | | | 
-| --- | --- | --- | --- | --- | --- | --- | 
+| --- | --- | --- | --- | --- | --- |
 | P2: | | R(x)a | W(x)b | | | 
 | P3: | | | | R(x)b | R(x)a | 
 | P4: | | | | R(x)a | R(x)b |
 
 (b): 
+
 | P1: | W(x)a | | | | | 
-| --- | --- | --- | --- | --- | --- | --- | 
+| --- | --- | --- | --- | --- | --- |
 | P2: | | | W(x)b | | | | 
 P3: | | | | R(x)b | R(x)a | | 
 P4: | | | | R(x)a | R(x)b |

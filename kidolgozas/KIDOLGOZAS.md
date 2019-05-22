@@ -1311,19 +1311,23 @@ Arra is szükségünk lehet, hogy megállapíthassuk két eseményrol, hogy az e
 
 ### A példában szereplo adatok
 
-a esemény: m1 beérkezett T = 16 idobélyeggel; b esemény: m2 elindult T = 20 idobélyeggel. Bár 16 < 20, a és b nem függenek össze okságilag.
+a esemény: m1 beérkezett T = 16 idobélyeggel; b esemény: m<sub>2</sub> elindult T = 20 idobélyeggel. Bár 16 < 20, a és b nem függenek össze okságilag.
 
 ## Idobélyeg-vektor
 
-A P<sub>i</sub> most már az összes másik folyamat idejét is számon tartja egy VCi [1..n] tömbben, ahol VC<sub>i</sub> [j] azoknak a P<sub>j</sub> folyamatban bekövetkezett eseményeknek a száma, amelyekrol P<sub>i</sub> tud. 
+A P<sub>i</sub> most már az összes másik folyamat idejét is számon tartja egy VC<sub>i</sub> [1..n] tömbben, ahol VC<sub>i</sub> [j] azoknak a P<sub>j</sub> folyamatban bekövetkezett eseményeknek a száma, amelyekrol P<sub>i</sub> tud. 
 
-Az m üzenet elküldése során P<sub>i</sub> megnöveli eggyel VC<sub>i</sub> [i] értékét (vagyis az üzenetküldés egy eseménynek számít), és a teljes V<sub>i</sub> idobélyeg-vektort ráírja az üzenetre. Amikor az m üzenet megérkezik a P<sub>j</sub> folyamathoz, amelyre a ts(m) idobélyeg van írva, két dolog történik: (1) VC<sub>j</sub> [k] := max{VC<sub>j</sub> [k],ts(m)[k]} (2) VC<sub>j</sub> [j] megno eggyel, vagyis az üzenet fogadása is egy eseménynek számít
+Az m üzenet elküldése során P<sub>i</sub> megnöveli eggyel VC<sub>i</sub> [i] értékét (vagyis az üzenetküldés egy eseménynek számít), és a teljes V<sub>i</sub> idobélyeg-vektort ráírja az üzenetre. Amikor az m üzenet megérkezik a P<sub>j</sub> folyamathoz, amelyre a ts(m) idobélyeg van írva, két dolog történik: 
+
+(1) VC<sub>j</sub> [k] := max{ VC<sub>j</sub> [k], ts(m)[k] }
+
+(2) VC<sub>j</sub> [j] megno eggyel, vagyis az üzenet fogadása is egy eseménynek számít
 
 ## Pontosan sorbarendezett csoportcímzés
 
 ### Idobélyeg-vektor alkalmazása
 
-Az idobélyeg-vektorokkal megvalósítható a pontosan sorbarendezett csoportcímzés: csak akkor kézbesítjük az üzeneteket, ha már mindegyik elozményüket kézbesítettük. Ehhez annyit változtatunk az elobb leírt időbélyeg-vektorok működésén, hogy amikor P<sub>j</sub> fogad egy üzenetet, akkor nem növeljük meg VC<sub>j</sub> [j] értékét. Pj csak akkor kézbesíti az m üzenetet, amikor: ts(m)[i] = VC<sub>j</sub> [i] +1, azaz a P<sub>j</sub> folyamatban P<sub>i</sub> minden korábbi üzenetét kézbesítettük ts(m)[k] ≤ VC<sub>j</sub> [k] for k 6= i, azaz az üzenet „nem a jövoből jött"
+Az idobélyeg-vektorokkal megvalósítható a pontosan sorbarendezett csoportcímzés: csak akkor kézbesítjük az üzeneteket, ha már mindegyik elozményüket kézbesítettük. Ehhez annyit változtatunk az elobb leírt időbélyeg-vektorok működésén, hogy amikor P<sub>j</sub> fogad egy üzenetet, akkor nem növeljük meg VC<sub>j</sub> [j] értékét. P<sub>j</sub> csak akkor kézbesíti az _m_ üzenetet, amikor: ts(m)[i] = VC<sub>j</sub> [i] +1, azaz a P<sub>j</sub> folyamatban P<sub>i</sub> minden korábbi üzenetét kézbesítettük ts(m)[k] ≤ VC<sub>j</sub> [k] for k 6= i, azaz az üzenet „nem a jövoből jött"
 
 ## Kölcsönös kizárás
 
@@ -1340,11 +1344,17 @@ Több folyamat egyszerre szeretne hozzáférni egy adott eroforráshoz. Ezt egys
 
 ## Kölcsönös kizárás: központosított
 
+Az eroforráshoz való hozzáférésrol, egy központi koordinátor dönt. Ha az eroforrás szabad (nem használja egy folyamat se), és egy folyamat kéri,
+akkor a koordinátor engedélyezi számára és az eroforrás foglalt lesz. Ha ezután még egy folyamat kéri, akkor a koordinátor erre fenttart egy várakozási sort, amibe behelyezi a klienst.
+Amint az elozo végzett a dolgával, a sorban következo folyamat kap engedélyt. Ha kiürül a sor és senki nem használja az eroforrást, az újra szabaddá válik.
+
 ![](kolcsonos.PNG)
 
 ## Kölcsönös kizárás: decentralizált
 
-Tegyük fel, hogy az eroforrás n-szeresen többszörözött, és minden replikátumhoz tartozik egy azt kezelo koordinátor. Az eroforráshoz való hozzáférésről többségi szavazás dönt: legalább m koordinátor engedélye szükséges, ahol m > n/2. Feltesszük, hogy egy esetleges összeomlás után a koordinátor hamar felépül – azonban a kiadott engedélyeket elfelejti. Példa: hatékonyság Tegyük fel, hogy a koordinátorok rendelkezésre állásának valószínűsége 99.9% („három kilences"), 32-szeresen replikált az eroforrásunk, és a koordinátorok háromnegyedének engedélyére van szükségünk (m = 0.75n). Ekkor annak a valószínűsége, hogy túl sok koordinátor omlik össze, igen alacsony: kevesebb mint 10<sup>−40</sup>.
+Tegyük fel, hogy az eroforrás n-szeresen többszörözött, és minden replikátumhoz tartozik egy azt kezelo koordinátor. Az eroforráshoz való hozzáférésről többségi szavazás dönt: legalább m koordinátor engedélye szükséges, ahol m > n/2. Feltesszük, hogy egy esetleges összeomlás után a koordinátor hamar felépül – azonban a kiadott engedélyeket elfelejti. 
+
+Példa: hatékonyság Tegyük fel, hogy a koordinátorok rendelkezésre állásának valószínűsége 99.9% („három kilences"), 32-szeresen replikált az eroforrásunk, és a koordinátorok háromnegyedének engedélyére van szükségünk (m = 0.75n). Ekkor annak a valószínűsége, hogy túl sok koordinátor omlik össze, igen alacsony: kevesebb mint 10<sup>−40</sup>.
 
 ## Kölcsönös kizárás: elosztott
 
@@ -1467,9 +1477,9 @@ A konzisztencia több módon is sérülhet:
 - eltérhet, hogy mennyire frissek az egyes replikátumok
 - eltérhet, hogy hány frissítési művelet nem történt még meg (illetve: sorrendben melyik műveletek hiányoznak)
 
-  ### Conit
+### Conit
 
-   Ha megtehetjük, a konzisztenciafeltéleket nem a teljes adatbázisra írjuk fel, hanem az adatoknak minél szűkebb körére. Az olyan adategység, amelyre közös feltételrendszer vonatkozik, a conit (consistency unit).
+Ha megtehetjük, a konzisztenciafeltéleket nem a teljes adatbázisra írjuk fel, hanem az adatoknak minél szűkebb körére. Az olyan adategység, amelyre közös feltételrendszer vonatkozik, a conit (consistency unit).
 
 ## Soros konzisztencia
 
@@ -1594,11 +1604,13 @@ Megváltozott tartalmat több különbözo módon lehet szerver-kliens architekt
 - Passzív replikáció: adatok átvitele egyik másolatról a másikra
 - Aktív replikáció: frissítési művelet átvitele
 
-  ### Melyiket érdemes választani?
+### Melyiket érdemes választani?
 
-   A sávszélesség és az írási/olvasási műveletek aránya a replikátumon nagyban befolyásolja, melyik módszer a leghatékonyabb adott esetben.
+A sávszélesség és az írási/olvasási műveletek aránya a replikátumon nagyban befolyásolja, melyik módszer a leghatékonyabb adott esetben.
 
-Küldésalapú: a szerver a kliens kérése nélkül küldi a frissítést Rendelésalapú: a kliens kérvényezi a frissítést
+Küldésalapú: a szerver a kliens kérése nélkül küldi a frissítést 
+
+Rendelésalapú: a kliens kérvényezi a frissítést
 
 Témakör               | Küldésalapú            | Rendelésalapú
 --------------------- | ---------------------- | -----------------------
@@ -1626,11 +1638,11 @@ Fix lejárat helyett rugalmasabb, ha a rendszer állapotától függhet a haszon
 ### Alapelv
 
 - Az egyszerűség kedvéért most egyetlen adatelemet vizsgálunk.
-- Az Si szerver a log(Si) naplóba írja az általa végrehajtott műveleteket.
-- A W írási műveletet elsoként végrehajtó szervert jelöljeőrigin(W), a művelet hatására bekövetkezo értékváltozást pedig weight(W). Tegyük fel, hogy ez mindig pozitív szám.
-- Si olyan írásait, amelyek Sj -rol származnak, jelölje TW[i,j]:
+- Az S<sub>i</sub> szerver a log(S<sub>i</sub>) naplóba írja az általa végrehajtott műveleteket.
+- A W írási műveletet elsoként végrehajtó szervert jelölje origin(W), a művelet hatására bekövetkezo értékváltozást pedig weight(W). Tegyük fel, hogy ez mindig pozitív szám.
+- S<sub>i</sub> olyan írásait, amelyek S<sub>j</sub> -rol származnak, jelölje TW[i,j]:
 
-TW[i,j] = ∑ { weight(W) | origin(W) = Sj & W ∈ log(Si) }
+TW[i,j] = ∑ { weight(W) | origin(W) = S<sub>j</sub> & W ∈ log(S<sub>i</sub>) }
 
 - Ekkor a változó összértéke (v) és értéke az i-edik másolaton (v<sub>i</sub>):
   - v = v<sub>kezdeti</sub>+∑ TW[k,k]
@@ -1638,18 +1650,18 @@ TW[i,j] = ∑ { weight(W) | origin(W) = Sj & W ∈ log(Si) }
 
 ## Folyamatos konzisztencia: számszerű eltérések
 
-Cél: minden Si szerveren teljesüljön: v −vi < δi (rögzített δi értékre).
+Cél: minden S<sub>i</sub> szerveren teljesüljön: v − vi < δi (rögzített δi értékre).
 
 ### Algoritmus
 
-TW[i,j] értékét minden Sk szerver becsülje egy TWk [i,j] értékkel. (Azaz: Sk „mit tud", Si milyen frissítéseket kapott már meg Sj -tol.)
+TW[i,j] értékét minden S<sub>k</sub> szerver becsülje egy TW<sub>k</sub> [i,j] értékkel. (Azaz: S<sub>k</sub> „mit tud", S<sub>i</sub> milyen frissítéseket kapott már meg Sj -tol.)
 
 Mivel a számértékeink nemnegatívak, fennáll:
 
-0 ≤ TWk [i,j] ≤ TW[i,j] ≤ TW[j,j] = TWj [j,j]
+0 ≤ TW<sub>k</sub> [i,j] ≤ TW[i,j] ≤ TW[j,j] = TW<sub>j</sub> [j,j]
 
 - Amikor új frissítési művelet érkezik be egy szerverre, pletykálással értesíti errol a többi szervert.
-- Amikor Sj azt látja, hogy TWj [i,j] túl messzire kerül TW[j,j]-tol a , akkor küldje el Si -nek log(Sj) műveleteit.
+- Amikor S<sub>j</sub> azt látja, hogy TW<sub>j</sub> [i,j] túl messzire kerül TW[j,j]-tol a , akkor küldje el S<sub>i</sub> -nek log(S<sub>j</sub>) műveleteit.
 
 ## Elsodleges másolaton alapuló protokoll távoli írással
 
@@ -1697,7 +1709,7 @@ Karbantarthatóság Az elromlott komponens könnyen javítható
 - Hiba (error): olyan rendszerállapot, amely hibajelenséghez vezethet
 - Hibaok (fault): a hiba (feltételezett) oka
 
-  ### Hibákkal kapcsolatos tennivalók
+### Hibákkal kapcsolatos tennivalók
 
 - Megelozés
 - Hibatűrés: a komponens legyen képes elfedni a hibákat
@@ -1819,13 +1831,9 @@ El kell dönteni, hogy milyen módon működjön a szerver.
 - „Legalább egyszer" szemantika szerint: A szerver az adott kérést legalább egyszer végrehajtja (de lehet, hogy többször is).
 - „Legfeljebb egyszer" szemantika szerint: A szerver az adott kérést legfeljebb egyszer hajtja végre (de lehet, hogy egyszer sem).
 
-## Megbízható RPC
-
-### RPC: Fellépo hibajelenségek és azok kezelése
-
 4: Elveszett a szerver válasza. Nehéz felismerni, mert a szerver összeomlása is hasonló a kliens szemszögébol. Nincsen általános megoldás; ha idempotens műveleteink vannak (többszöri végrehajtás ugyanazt az eredményt adja), megpróbálhatjuk újra végrehajtani oket.
 
-5: Összeomlik a kliens. Ilyenkor a szerver feleslegesen foglalja az eroforrásokat: árvaa feladatok keletkeznek.
+5: Összeomlik a kliens. Ilyenkor a szerver feleslegesen foglalja az eroforrásokat: árva feladatok keletkeznek.
 
 - A kliens felépülése után az árva feladatokat szükség szerint leállítja/visszagörgeti a szerver.
 - A kliens felépülése után új korszak kezdodik: a szerver leállítja az árva feladatokat.
@@ -1866,7 +1874,7 @@ A folyamatok számon tartják, hogy kik a csoport tagjai: nézet (view). Egy üz
 
 ## Elosztott véglegesítés: 2PC
 
-2PC Egy elosztott számítás végén szeretnénk elérni, hogy vagy minden folyamat véglegesítse az eredményt, vagy egyik sem. (atomiság) Ezt általában kétfázisú véglegesítéssel (two-phase commit, 2PC) szokás elérni. A számítást az azt kezdeményezo kliens koordinátorként vezérli. Az egyes fázisokban a koordinátor (K) és egy-egy résztvevo (R) az alábbiak szerint cselekszik.
+Egy elosztott számítás végén szeretnénk elérni, hogy vagy minden folyamat véglegesítse az eredményt, vagy egyik sem. (atomiság) Ezt általában kétfázisú véglegesítéssel (two-phase commit, 2PC) szokás elérni. A számítást az azt kezdeményezo kliens koordinátorként vezérli. Az egyes fázisokban a koordinátor (K) és egy-egy résztvevo (R) az alábbiak szerint cselekszik.
 
 - 1/K: Megkérdez mindenkit, enged-e véglegesíteni: vote-request.
 - 1/R: Dönt: igennel (vote-commit) vagy nem (vote-abort), utóbbi esetben rögtön el is veti a kiszámított értéket.
@@ -1989,7 +1997,7 @@ A naplóba elég a nemdeterminisztikus eseményeket felvenni, a többi lépés b
 - COPY[m]: Azok a folyamatok, amelyekhez HDR[m] már megérkezett, de még nem tárolták el. Ezek a folyamatok képesek HDR[m] reprodukálására.
 - DEP[m]: Azok a folyamatok, amelyekhez megérkezett HDR[m'], ahol m0 okozatilag függ m-tol.
 
-Ha C összeomlott folyamatok halmaza, akkor Q 6∈ C árva, ha függ olyan m üzenettol, amelyet csak az összeomlottak tudnának előállítani:
+Ha C összeomlott folyamatok halmaza, akkor Q !∈ C árva, ha függ olyan m üzenettol, amelyet csak az összeomlottak tudnának előállítani:
 
 - Q ∈ DEP[m] és COPY[m] ⊆ C.
 
@@ -2025,7 +2033,7 @@ Implementáció: minden árva folyamatot visszagörgetünk olyan ellenorzőponti
 - Fordítási idoben létrejövő objektumok : A helyettest és a vázat a fordítóprogram készíti el, összeszerkeszti a kliens és a szerver kódjával. Nem cserélheto le, miután létrejött, és a klienssel/szerverrel azonos a programozási nyelve.
 - Futási idoben létrejövő objektumok : Tetszoleges nyelven valósítható meg, de objektumadapterre van szükség a szerveroldalon a használatához.
 
-  ### Objektumok élettartamuk alapján
+### Objektumok élettartamuk alapján
 
 - Átmeneti (tranziens) objektum: Élettartama csak addig tart, amíg be van töltve a szerverbe. Ha a szerver kilép, az objektum is megsemmisül.
 - Tartós (perzisztens) objektum: Az objektum állapotát és kódját lemezre írjuk, így a szerver kilépése után is megmarad. Ha a szerver nem fut, az objektum passzív; amikor a szerver elindul, betöltéssel aktivizálható.
@@ -2080,7 +2088,7 @@ Ha egy kliens birtokol egy referenciát egy objektumra, képes hozzá csatlakozn
 - A hivatkozás eloírja, melyik szerveren, melyik objektumot, milyen kommunikációs protokoll szerint lehet rajta keresztül elérni
 - A hivatkozáshoz kód tartozik, ezt a konkrét objektum eléréséhez felparaméterezve kapjuk a helyettest
 
-  ### Kétfajta csatlakozás
+### Kétfajta csatlakozás
 
 - Implicit: Magán a hivatkozott objektumon hívjuk meg a műveleteket
 - Explicit: A kliens kódjában a csatlakozás explicit megjelenik
@@ -2092,9 +2100,9 @@ Ha egy kliens birtokol egy referenciát egy objektumra, képes hozzá csatlakozn
 - A szerver és az objektum ismerete elegendo lehet a távoli metódushívás megkezdéséhez
 - Objektumhivatkozások paraméterként is átadhatóak, amik RPC esetében bonyodalmakat okoznak
 
-## Távoli metódushívás (Remote Method Invocation,
+## Távoli metódushívás (Remote Method Invocation,RMI) 
 
-RMI) Tegyük fel, hogy a helyettes és a váz rendelkezésre áll a kliensnél/szervernél.
+Tegyük fel, hogy a helyettes és a váz rendelkezésre áll a kliensnél/szervernél.
 
 - 1 A kliens meghívja a helyettest
 - 2 A helyettes becsomagolja a hívás adatait, és elküldi a szervernek
@@ -2138,7 +2146,9 @@ A kliens az üzenetekre várás közben lehet aktív vagy passzív
 
 ## Objektumhivatkozások
 
-IIOP : távoli objektumhivatkozásokat kezelo protokoll CORBA : Objektumalapú köztesréteg, IIOP-t használ
+IIOP : távoli objektumhivatkozásokat kezelo protokoll 
+
+CORBA : Objektumalapú köztesréteg, IIOP-t használ
 
 Különbözo objektumkezelő rendszerekben a hivatkozások szerkezete nagymértékben eltérhet.
 
@@ -2220,7 +2230,7 @@ A kliensek tárolhatják a fájlokat (vagy részeket belolük), és a szerver ki
 
 ## Rendelkezésre állás növelése P2P rendszerekben
 
-Sok P2P alapú, decentralizált fájlrendszer létezik. Ezekben probléma lehet, ha túl gyorsan változik a tagság (churn), mert kiléphet akár egy fájlt tartalmazó összes csúcs. Ennek kivédéséhez replikálhatjuk a fájljainkat (arányát jelölje rrep). Másik megközelítés: erasure coding: az F fájlt bontsuk m részre, és minden szerverre tegyünk n részt, ahol n > m. A replikációs arány ekkor r<sub>ec</sub> = n/m. Ez az arány általában sokkal kisebb, mint rrep, ha a rendszerünk változékony.
+Sok P2P alapú, decentralizált fájlrendszer létezik. Ezekben probléma lehet, ha túl gyorsan változik a tagság (churn), mert kiléphet akár egy fájlt tartalmazó összes csúcs. Ennek kivédéséhez replikálhatjuk a fájljainkat (arányát jelölje r<sub>rep</sub>). Másik megközelítés: erasure coding: az F fájlt bontsuk m részre, és minden szerverre tegyünk n részt, ahol n > m. A replikációs arány ekkor r<sub>ec</sub> = n/m. Ez az arány általában sokkal kisebb, mint r<sub>rep</sub>, ha a rendszerünk változékony.
 
 # Elosztott webalapú rendszerek
 
@@ -2251,7 +2261,7 @@ A teljesítmény és a rendelkezésre állás növelésének érdekében a szerv
 A kapcsolattartó (front end) szűk keresztmetszetté válhat, ennek elkerülésére több lehetoség van.
 
 - TCP átadás: Valamilyen metrika alapján kiválasztunk egy szervert, és a kliens kiszolgálását az a szerver folytatja.
-- Tartalomérzékeny kéréselosztás (content aware distribution): Lásd következo oldal.
+- Tartalomérzékeny kéréselosztás (content aware distribution).
 
 Tartalomérzékeny kéréselosztás (content aware distribution): A HTTP kérés tartalmát is figyelembe vesszük a szerver kiválasztásánál. Ez megnöveli a kapcsolattartó terhelését, de sok elonye van: segítségével hatékonyabb lehet a szerveroldali cache-elés, és lehetnek bizonyos feladatokra dedikált szervereink.
 

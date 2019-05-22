@@ -1029,55 +1029,16 @@ Elosztott hasítótáblát (distributed hash table, DHT) készítünk (konkréta
 
 ### Chord alapú adattárolás
 
-Mindegyik _p_ csúcs egy FT
+Mindegyik _p_ csúcs egy FT<sub>p</sub> „finger table"-t tárol _m_ bejegyzéssel:
 
-<sub>p</sub>
+FT<sub>p</sub>[i] = succ(p +2<sup>i−1</sup>)
 
- „finger table"-t tárol _m_ bejegyzéssel:
+Bináris (jellegű) keresést szeretnénk elérni, ezért minden lépés felezi a keresési tartományt: 2<sup>m−1</sup> 2<sup>m−2</sup>,...,2<sup>0</sup>. 
+A _k_ kulcsú egyed kikereséséhez (ha nem a jelenlegi csúcs tartalmazza) a kérést továbbítjuk a _j_ indexű csúcshoz, amelyre
 
-FT
+FT<sub>p</sub>[j] ≤ k < FT<sub>p</sub>[j +1]
 
-<sub>p</sub>
-
-[i] = succ(p +2
-
-<sup>i−1</sup>
-
-)
-
-Bináris (jellegű) keresést szeretnénk elérni, ezért minden lépés felezi a keresési tartományt: 2
-
-<sup>m−1</sup>
-
- 2
-
-<sup>m−2</sup>
-
-,...,2
-
-<sup>0</sup>
-
-. A _k_ kulcsú egyed kikereséséhez (ha nem a jelenlegi csúcs tartalmazza) a kérést továbbítjuk a _j_ indexű csúcshoz, amelyre
-
-FT
-
-<sub>p</sub>
-
-[j] ≤ k < FT
-
-<sub>p</sub>
-
-[j +1]
-
-illetve, ha _p_ < _k_ < FT
-
-<sub>p</sub>
-
-[1], akkor is FT
-
-<sub>p</sub>
-
-[1]-hez irányítjuk a kérést.
+illetve, ha _p_ < _k_ < FT<sub>p</sub>[1], akkor is FT<sub>p</sub>[1]-hez irányítjuk a kérést.
 
 ### Jól méretezodő megoldás
 
